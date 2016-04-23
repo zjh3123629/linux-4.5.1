@@ -26,7 +26,7 @@
 	compatible = "yic,smdkv210", "samsung,s5pv210";
 
 	chosen {
-		bootargs = "console=ttySAC0,115200n8 root=/dev/mmcblk0p1 rw rootwait ignore_loglevel earlyprintk";
+		bootargs = "noinitrd console=ttySAC0,115200 root=/dev/nfs rw nfsroot=192.168.0.1:/home/zjh/work/rootfs/ ip=192.168.0.2:192.168.0.1:192.168.0.1:255.255.255.0::eth0:off earlyprintk";
 	};
 
 	memory {
@@ -51,6 +51,10 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&pwm3_out>;
 	};
+};
+
+&xxti {
+	clock-frequency = <24000000>;
 };
 
 &xusbxti {
