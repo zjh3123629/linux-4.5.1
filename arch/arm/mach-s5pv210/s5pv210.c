@@ -18,9 +18,11 @@
 #include <asm/system_misc.h>
 
 #include <plat/map-base.h>
+#include <plat/map-s5p.h>
 
 #include "common.h"
 #include "regs-clock.h"
+#include "regs-srom.h"
 
 static int __init s5pv210_fdt_map_sys(unsigned long node, const char *uname,
 					int depth, void *data)
@@ -28,8 +30,9 @@ static int __init s5pv210_fdt_map_sys(unsigned long node, const char *uname,
 	struct map_desc iodesc;
 	const __be32 *reg;
 	int len;
+	unsigned int tmp = 0;
 
-	if (!of_flat_dt_is_compatible(node, "samsung,s5pv210-clock"))
+	if (!of_flat_dt_is_compatible(node, "samsung,s5pv210-srom"))
 		return 0;
 
 	reg = of_get_flat_dt_prop(node, "reg", &len);
@@ -38,10 +41,24 @@ static int __init s5pv210_fdt_map_sys(unsigned long node, const char *uname,
 
 	iodesc.pfn = __phys_to_pfn(be32_to_cpu(reg[0]));
 	iodesc.length = be32_to_cpu(reg[1]) - 1;
-	iodesc.virtual = (unsigned long)S3C_VA_SYS;
+	iodesc.virtual = (unsigned long)S5P_VA_SROMC;
 	iodesc.type = MT_DEVICE;
 	iotable_init(&iodesc, 1);
+#if 0
+	gpio_request(S5PV210_MP01(1), "nCS1");
+	s3c_gpio_cfgpin(S5PV210_MP01(1), S3C_GPIO_SFN(2));
+	gpio_free(S5PV210_MP01(1));
+#endif
+	tmp = ((0<<28)|(0<<24)|(5<<16)|(0<<12)|(0<<8)|(0<<4)|(0<<0));
+	__raw_writel(tmp, S5P_SROM_BC1);
+	dev_err(NULL, "bc1 = 0x%x\n", __raw_readl(S5P_SROM_BC1));
 
+	tmp = __raw_readl(S5P_SROM_BW);
+	tmp &= (S5P_SROM_BW__CS_MASK << S5P_SROM_BW__NCS1__SHIFT);
+	tmp |= (1<<4)|(1<<5);
+	__raw_writel(tmp, S5P_SROM_BW);
+	dev_err(NULL, "bc1 = 0x%x\n", __raw_readl(S5P_SROM_BW));
+	
 	return 1;
 }
 

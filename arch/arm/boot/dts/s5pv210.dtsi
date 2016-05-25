@@ -373,6 +373,11 @@
 					<&clocks SCLK_UART3>;
 			status = "disabled";
 		};
+		
+		srom: srom@e8000000 {
+			compatible = "samsung,s5pv210-srom";
+			reg = <0xe8000000 0x400>;
+		};
 
 		sdhci0: sdhci@eb000000 {
 			compatible = "samsung,s3c6410-sdhci";
